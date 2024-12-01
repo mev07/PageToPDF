@@ -3,11 +3,35 @@ const JSPDF_URL =
 const HTML2CANVAS_URL =
   "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
 const ERR_MSG = "Error occured";
-const USER_ERR_MSG = "Das Erstellen des PDFs ist fehlgeschlagen";
-const PDF_NAME = "section.pdf";
-const AREA = document.getElementById("container");
+const USER_ERR_MSG = "Creating PDF failed";
+const PDF_NAME = "website.pdf";
 
-const load = (src) => {
+let AREA = document.body;
+
+const DIV_NAME = "container";
+const MODE_URL = "https://objack.dlouhy.at";
+
+const general = () => {
+  return window.location.href.startsWith(MODE_URL) ? false : true;
+};
+
+const init = () => {
+  AREA = general() ? AREA : document.getElementById(DIV_NAME);
+  load();
+};
+
+const load = async () => {
+  try {
+    await dependencies(JSPDF_URL);
+    await dependencies(HTML2CANVAS_URL);
+    create();
+  } catch (error) {
+    error();
+    return;
+  }
+};
+
+const dependencies = (src) => {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = src;
@@ -30,63 +54,43 @@ const load = (src) => {
   });
 };
 
-const init = async () => {
-  try {
-    await load(JSPDF_URL);
-    await load(HTML2CANVAS_URL);
-    create();
-  } catch (error) {
-    error();
-    return;
-  }
-};
-
 const create = async () => {
-  helper(); // opens all accordion headers
+  helper(); // opens all accordion headers if mode is not general
   if (!window.jspdf || !window.jspdf.jsPDF) {
     error();
     return;
   }
   const { jsPDF } = window.jspdf;
-
   if (typeof html2canvas === "undefined") {
     error();
     return;
   }
-
   const pdf = new jsPDF();
-  const elem = AREA == undefined ? document.body : AREA;
-  const canvas = await html2canvas(elem);
+  const canvas = await html2canvas(AREA);
   if (!canvas || !canvas.width || !canvas.height) {
     error();
     return;
   }
-
   const imgData = canvas.toDataURL("image/png");
   if (!imgData) {
     error();
     return;
   }
-
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
   if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfHeight <= 0) {
     error();
     return;
   }
-
   pdf.internal.pageSize.setHeight(pdfHeight);
-
   try {
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
   } catch (error) {
     error();
     return;
   }
-
   pdf.save(PDF_NAME);
-  helper(); // closes all accordion headers
+  helper(); // closes all accordion headers if mode is not general
 };
 
 const error = () => {
@@ -95,6 +99,9 @@ const error = () => {
 };
 
 const helper = () => {
+  if (general()) {
+    return;
+  }
   const hdr = "ui-accordion-header";
   const hdrActive = "ui-accordion-header-active";
   Array.from(document.querySelectorAll("*"))
