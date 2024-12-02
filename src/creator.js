@@ -11,8 +11,6 @@ let AREA = document.body;
 const DIV_NAME = "container";
 const MODE_URL = "https://objack.dlouhy.at";
 
-run();
-
 const run = () => {
   if (general()) {
     window.addEventListener("keydown", (e) => {
@@ -129,3 +127,5 @@ const helper = () => {
       }
     });
 };
+
+run();
