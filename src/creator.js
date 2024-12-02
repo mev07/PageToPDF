@@ -11,6 +11,18 @@ let AREA = document.body;
 const DIV_NAME = "container";
 const MODE_URL = "https://objack.dlouhy.at";
 
+run();
+
+const run = () => {
+  if (general()) {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "PageDown") {
+        init();
+      }
+    });
+  }
+};
+
 const general = () => {
   return window.location.href.startsWith(MODE_URL) ? false : true;
 };
