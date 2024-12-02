@@ -9,7 +9,7 @@ const PDF_NAME = "website.pdf";
 let AREA = document.body;
 
 const DIV_NAME = "container";
-const MODE_URL = "https://objack.dlouhy.at";
+const MODE_URL = "https://example.com"; // URL of the specialised mode, TBA
 
 const run = () => {
   if (general()) {
