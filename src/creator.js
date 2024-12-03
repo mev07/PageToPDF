@@ -15,12 +15,7 @@ const run = () => {
   if (general()) {
     window.addEventListener("keydown", (e) => {
       if (e.key === "PageDown") {
-        try {
-          init();
-        } catch (error) {
-          error();
-          return;
-        }
+        init();
       }
     });
   }
@@ -65,11 +60,7 @@ const dependencies = (src) => {
       }, 100);
     };
     script.onerror = () => reject(ERR_MSG);
-    try {
-      document.head.appendChild(script);
-    } catch (error) {
-      reject(ERR_MSG);
-    }
+    document.head.appendChild(script);
   });
 };
 
