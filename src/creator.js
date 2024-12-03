@@ -15,7 +15,12 @@ const run = () => {
   if (general()) {
     window.addEventListener("keydown", (e) => {
       if (e.key === "PageDown") {
-        init();
+        try {
+          init();
+        } catch (error) {
+          error();
+          return;
+        }
       }
     });
   }
