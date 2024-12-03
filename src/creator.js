@@ -60,7 +60,11 @@ const dependencies = (src) => {
       }, 100);
     };
     script.onerror = () => reject(ERR_MSG);
-    document.head.appendChild(script);
+    try {
+      document.head.appendChild(script);
+    } catch (error) {
+      reject(ERR_MSG);
+    }
   });
 };
 
