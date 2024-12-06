@@ -32,8 +32,8 @@ const init = () => {
 
 const load = async () => {
   try {
-    dependencies(JSPDF_URL);
-    dependencies(HTML2CANVAS_URL);
+    await dependencies(JSPDF_URL);
+    await dependencies(HTML2CANVAS_URL);
     create();
   } catch (error) {
     err();
@@ -42,28 +42,26 @@ const load = async () => {
 };
 
 const dependencies = (src) => {
-  const script = document.createElement("script");
-  script.src = src;
-  script.onload = () => {
-    setTimeout(() => {
-      if (src === JSPDF_URL && (!window.jspdf || !window.jspdf.jsPDF)) {
-        err();
-      } else if (
-        src === HTML2CANVAS_URL &&
-        typeof window.html2canvas === "undefined"
-      ) {
-        err();
-      }
-    }, 100);
-  };
-  script.onerror = () => {
-    err();
-  };
-  try {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => {
+      setTimeout(() => {
+        if (src === JSPDF_URL && (!window.jspdf || !window.jspdf.jsPDF)) {
+          reject("jspdf not loaded");
+        } else if (
+          src === HTML2CANVAS_URL &&
+          typeof window.html2canvas === "undefined"
+        ) {
+          reject("html2canvas not loaded");
+        } else {
+          resolve();
+        }
+      }, 100);
+    };
+    script.onerror = () => reject("Error loading script");
     document.head.appendChild(script);
-  } catch (error) {
-    err();
-  }
+  });
 };
 
 const create = async () => {
