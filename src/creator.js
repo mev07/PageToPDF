@@ -34,7 +34,7 @@ const load = async () => {
   try {
     await dependencies(JSPDF_URL);
     await dependencies(HTML2CANVAS_URL);
-    create();
+    await create();
   } catch (error) {
     err();
     return;
