@@ -32,78 +32,80 @@ const init = () => {
 
 const load = async () => {
   try {
-    await dependencies(JSPDF_URL);
-    await dependencies(HTML2CANVAS_URL);
+    dependencies(JSPDF_URL);
+    dependencies(HTML2CANVAS_URL);
     create();
   } catch (error) {
-    error();
+    err();
     return;
   }
 };
 
 const dependencies = (src) => {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => {
-      setTimeout(() => {
-        if (src === JSPDF_URL && (!window.jspdf || !window.jspdf.jsPDF)) {
-          reject(ERR_MSG);
-        } else if (
-          src === HTML2CANVAS_URL &&
-          typeof window.html2canvas === "undefined"
-        ) {
-          reject(ERR_MSG);
-        } else {
-          resolve();
-        }
-      }, 100);
-    };
-    script.onerror = () => reject(ERR_MSG);
+  const script = document.createElement("script");
+  script.src = src;
+  script.onload = () => {
+    setTimeout(() => {
+      if (src === JSPDF_URL && (!window.jspdf || !window.jspdf.jsPDF)) {
+        err();
+      } else if (
+        src === HTML2CANVAS_URL &&
+        typeof window.html2canvas === "undefined"
+      ) {
+        err();
+      }
+    }, 100);
+  };
+  script.onerror = () => {
+    err();
+  };
+  try {
     document.head.appendChild(script);
-  });
+  } catch (error) {
+    err();
+  }
 };
 
 const create = async () => {
   helper(); // opens all accordion headers if mode is not general
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    error();
+    err();
     return;
   }
   const { jsPDF } = window.jspdf;
   if (typeof html2canvas === "undefined") {
-    error();
+    err();
     return;
   }
   const pdf = new jsPDF();
   const canvas = await html2canvas(AREA);
   if (!canvas || !canvas.width || !canvas.height) {
-    error();
+    err();
     return;
   }
   const imgData = canvas.toDataURL("image/png");
   if (!imgData) {
-    error();
+    err();
     return;
   }
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
   if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfHeight <= 0) {
-    error();
+    err();
     return;
   }
   pdf.internal.pageSize.setHeight(pdfHeight);
   try {
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
   } catch (error) {
-    error();
+    err();
     return;
   }
   pdf.save(PDF_NAME);
   helper(); // closes all accordion headers if mode is not general
 };
 
-const error = () => {
+const err = () => {
   console.error(ERR_MSG);
   alert(USER_ERR_MSG);
 };
